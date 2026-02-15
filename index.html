@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>你的自律类型 · LUMINARY</title>
+    <style>
+        /* ---------- 原有样式，完美保留 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(145deg, #f5f7fa 0%, #e9ecf0 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px rgba(0,20,30,0.2), 0 4px 12px rgba(0,0,0,0.05);
+            max-width: 600px;
+            width: 100%;
+            padding: 32px 24px;
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: all 0.3s;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 1px;
+        }
+        .header p {
+            color: #2c3e50;
+            opacity: 0.8;
+            font-size: 1rem;
+            margin-top: 8px;
+        }
+        .type-badge {
+            display: inline-block;
+            background: #2a5298;
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 40px;
+            margin-bottom: 16px;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 8px rgba(42,82,152,0.3);
+        }
+        .type-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            color: #0a1a2f;
+        }
+        .type-desc {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            color: #1e2a3a;
+            margin-bottom: 28px;
+            background: rgba(255,255,255,0.7);
+            padding: 20px;
+            border-radius: 24px;
+            border-left: 5px solid #2a5298;
+        }
+        .advice {
+            background: #f0f4fb;
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(42,82,152,0.2);
+        }
+        .advice h3 {
+            font-size: 1.2rem;
+            color: #1e3c72;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .advice p {
+            color: #2c3e50;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+        .share-hint {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            border-top: 1px dashed #cbd5e1;
+            padding-top: 20px;
+            margin-top: 16px;
+        }
+        .share-hint button {
+            background: none;
+            border: 1px solid #2a5298;
+            color: #2a5298;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 500;
+            margin-top: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .share-hint button:hover {
+            background: #2a5298;
+            color: white;
+        }
+        /* ---------- 醒目抽奖按钮样式（完美嵌入） ---------- */
+        .prize-entry {
+            text-align: center;
+            margin: 24px 0 16px;
+        }
+        .prize-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            padding: 14px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(225,29,72,0.3);
+            transition: all 0.2s;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .prize-button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #e11d48, #be123c);
+        }
+        .prize-note {
+            color: #64748b;
+            font-size: 0.8rem;
+            margin-top: 8px;
+        }
+        .footer {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-top: 16px;
+        }
+        .loading {
+            text-align: center;
+            color: #2a5298;
+            font-size: 1.2rem;
+            padding: 40px;
+        }
+        .error {
+            color: #b91c1c;
+            background: #fee2e2;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card" id="resultCard">
+        <div class="loading">✨ 正在解读你的自律密码...</div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 从URL获取参数 ----------
+            function getParam(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            const AN1 = getParam('AN1') ? Number(getParam('AN1')) : null;
+            const BI1 = getParam('BI1') ? Number(getParam('BI1')) : null;
+            const SC1 = getParam('SC1') ? Number(getParam('SC1')) : null;
+            const CM1 = getParam('CM1') ? Number(getParam('CM1')) : null;
+            const SE1 = getParam('SE1') ? Number(getParam('SE1')) : null;
+
+            console.log('AN1=', AN1, 'BI1=', BI1, 'SC1=', SC1, 'CM1=', CM1, 'SE1=', SE1);
+
+            // ---------- 判断自律类型（规则不变）----------
+            function getType() {
+                if (AN1 !== null && BI1 !== null && AN1 >= 4 && BI1 >= 4) {
+                    return 'ritual';
+                }
+                if (SC1 !== null && CM1 !== null && SC1 >= 4 && CM1 >= 4) {
+                    return 'debt';
+                }
+                if (SE1 !== null && BI1 !== null && SE1 >= 4 && BI1 <= 2) {
+                    return 'inner';
+                }
+                return 'default';
+            }
+
+            // ---------- 渲染页面（已修正所有问题）----------
+            function render(type) {
+                const container = document.getElementById('resultCard');
+                let title, desc, advice, badgeColor, badgeText;
+
+                switch (type) {
+                    case 'ritual':
+                        badgeText = '仪式驱动型';
+                        title = '🎯 仪式驱动型自律者';
+                        desc = '你需要一个「开始」的仪式——也许是整理书桌，也许是打卡，也许是为学习花点钱。仪式感对你来说不是形式，而是进入状态的开关。你买的不是服务，是那个「我要开始了」的信号。';
+                        advice = '接纳自己的仪式需求，但别让仪式代替真正的行动。设定一个5分钟倒计时，仪式结束立刻开始学习。';
+                        badgeColor = '#8B5CF6';
+                        break;
+                    case 'debt':
+                        badgeText = '压力负债型';
+                        title = '😥 压力负债型自律者';
+                        desc = '你常常因为拖延而自责，付费像是给焦虑「还债」——花钱买个心安，买个「至少我在努力」的证明。但问题是，买了不等于做了，做了不等于做到。';
+                        advice = '把「为焦虑付费」变成「为目标付费」。付费前问自己：这笔钱买的是安慰，还是具体的学习产出？';
+                        badgeColor = '#E11D48';
+                        break;
+                    case 'inner':
+                        badgeText = '内生型';
+                        title = '💪 内生型自律者';
+                        desc = '你对自己的掌控力有信心，即使偶尔拖延，也相信能调整回来。付费自律服务对你来说更像是锦上添花，而不是雪中救急。';
+                        advice = '你是付费自律市场的「理性消费者」。如果选择付费，请关注那些能真正提升效率的功能，而不是情绪安慰。';
+                        badgeColor = '#059669';
+                        break;
+                    default:
+                        badgeText = '综合型';
+                        title = '🧘 综合型自律者';
+                        desc = '你的自律风格多元而平衡，可能同时受到多种因素影响。你既有内在的坚持，也会借助外部环境。';
+                        advice = '保持这种灵活的态度！在不同情境下选择最适合自己的方式，就是最好的自律。';
+                        badgeColor = '#4B5563';
+                        break;
+                }
+
+                // 构建HTML：包含结果、分享、抽奖按钮（已去除“正大杯国奖冲刺”）
+                const html = `
+                    <div class="header">
+                        <h1>LUMINARY</h1>
+                        <p>你的专属自律画像</p>
+                    </div>
+                    <div class="type-badge" style="background: ${badgeColor};">${badgeText}</div>
+                    <div class="type-title">${title}</div>
+                    <div class="type-desc">${desc}</div>
+                    <div class="advice">
+                        <h3>📌 给你的建议</h3>
+                        <p>${advice}</p>
+                    </div>
+                    <div class="share-hint">
+                        ✨ 长按截图，分享给朋友看看你的自律类型～
+                        <br>
+                        <button onclick="screenshot()">📸 截图保存</button>
+                    </div>
+                    <!-- 醒目抽奖入口，链接已替换为你提供的抽奖问卷 -->
+                    <div class="prize-entry">
+                        <a href="https://v.wjx.cn/vm/OMN76eW.aspx" target="_blank" class="prize-button">
+                            🎁 恭喜你获得一次抽奖机会！点我立即抽奖
+                        </a>
+                        <div class="prize-note">（抽完奖记得截图保存你的奖品信息）</div>
+                    </div>
+                    <div class="footer">LUMINARY 调研团队</div>
+                `;
+                container.innerHTML = html;
+            }
+
+            // 截图引导（不变）
+            window.screenshot = function() {
+                alert('📱 请使用手机自带的截屏功能（音量键+电源键）保存这张卡片！');
+            };
+
+            // ---------- 执行：有参数才判断类型，否则显示错误提示（避免无参数时误判为综合型）----------
+            if (AN1 === null && BI1 === null && SC1 === null && CM1 === null && SE1 === null) {
+                document.getElementById('resultCard').innerHTML = `
+                    <div class="error">
+                        ⚠️ 没有收到你的答案参数，请确认跳转链接中的参数名是否正确。<br>
+                        示例：?AN1=5&BI1=4&SC1=2&CM1=3&SE1=4
+                    </div>
+                `;
+            } else {
+                const type = getType();
+                render(type);
+            }
+        })();
+    </script>
+</body>
+</html>
